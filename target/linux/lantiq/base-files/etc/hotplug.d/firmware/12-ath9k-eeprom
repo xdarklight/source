@@ -77,7 +77,7 @@ case "$FIRMWARE" in
 			ath9k_eeprom_extract "art-copy" 0 0
 			;;
 		BTHOMEHUBV5A)
-			ath9k_eeprom_extract "caldata" 4096 0
+			ath9k_ubi_eeprom_extract "caldata" 4096 0
 			;;
 		DGN3500)
 			ath9k_eeprom_extract "calibration" 61440 1
