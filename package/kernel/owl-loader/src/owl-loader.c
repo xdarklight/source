@@ -18,6 +18,7 @@
 #include <linux/module.h>
 #include <linux/version.h>
 #include <linux/completion.h>
+#include <linux/etherdevice.h>
 #include <linux/firmware.h>
 #include <linux/pci.h>
 #include <linux/delay.h>
@@ -27,6 +28,8 @@
 struct owl_ctx {
 	struct completion eeprom_load;
 };
+
+#define EEPROM_FILENAME_LEN 100
 
 #define AR5416_EEPROM_MAGIC 0xa55a
 
@@ -111,26 +114,27 @@ static void owl_fw_cb(const struct firmware *fw, void *context)
 	complete(&ctx->eeprom_load);
 
 	if (!fw) {
-		dev_err(&pdev->dev, "no '%s' eeprom file received.",
-			pdata->eeprom_name);
+		dev_err(&pdev->dev, "no eeprom data received.\n");
 		goto release;
 	}
 
 	/* also note that we are doing *u16 operations on the file */
-	if (fw->size > sizeof(pdata->eeprom_data) || fw->size < 0x200 ||
+	if (fw->size > ATH9K_PLAT_EEP_MAX_WORDS || fw->size < 0x200 ||
 	    (fw->size & 1) == 1) {
 		dev_err(&pdev->dev, "eeprom file has an invalid size.");
 		goto release;
 	}
 
-	memcpy(pdata->eeprom_data, fw->data, sizeof(pdata->eeprom_data));
+	if (pdata) {
+		memcpy(pdata->eeprom_data, fw->data, ATH9K_PLAT_EEP_MAX_WORDS);
 
-	/* eeprom has been successfully loaded - pass the data to ath9k
-	 * but remove the eeprom_name, so it doesn't try to load it too.
-	 */
-	pdata->eeprom_name = NULL;
+		/* eeprom has been successfully loaded - pass the data to ath9k
+		* but remove the eeprom_name, so it doesn't try to load it too.
+		*/
+		pdata->eeprom_name = NULL;
+	}
 
-	if (ath9k_pci_fixup(pdev, pdata->eeprom_data, fw->size))
+	if (ath9k_pci_fixup(pdev, (const u16 *) fw->data, fw->size))
 		goto release;
 
 	pci_lock_rescan_remove();
@@ -146,11 +150,35 @@ release:
 	release_firmware(fw);
 }
 
+static const char *owl_get_eeprom_name(struct pci_dev *pdev)
+{
+	struct device *dev = &pdev->dev;
+	struct ath9k_platform_data *pdata;
+	char *eeprom_name;
+
+	/* try the existing platform data first */
+	pdata = dev_get_platdata(dev);
+	if (pdata && pdata->eeprom_name)
+		return pdata->eeprom_name;
+
+	dev_dbg(dev, "using auto-generated eeprom filename\n");
+
+	eeprom_name = devm_kzalloc(dev, EEPROM_FILENAME_LEN, GFP_KERNEL);
+	if (!eeprom_name)
+		return -ENOMEM;
+
+	/* this should match the pattern used in ath9k/init.c */
+	scnprintf(eeprom_name, EEPROM_FILENAME_LEN, "ath9k-eeprom-pci-%s.bin",
+		  dev_name(dev));
+
+	return eeprom_name;
+}
+
 static int owl_probe(struct pci_dev *pdev,
 		    const struct pci_device_id *id)
 {
 	struct owl_ctx *ctx;
-	struct ath9k_platform_data *pdata;
+	const char *eeprom_name;
 	int err = 0;
 
 	if (pcim_enable_device(pdev))
@@ -158,15 +186,9 @@ static int owl_probe(struct pci_dev *pdev,
 
 	pcim_pin_device(pdev);
 
-	/* we now have a valid dev->platform_data */
-	pdata = dev_get_platdata(&pdev->dev);
-	if (!pdata) {
-		dev_err(&pdev->dev, "platform data missing.");
-		return -ENODEV;
-	}
-
-	if (!pdata->eeprom_name) {
-		dev_err(&pdev->dev, "no eeprom file defined.");
+	eeprom_name = owl_get_eeprom_name(pdev);
+	if (!eeprom_name) {
+		dev_err(&pdev->dev, "no eeprom filename found.\n");
 		return -ENODEV;
 	}
 
@@ -178,7 +200,7 @@ static int owl_probe(struct pci_dev *pdev,
 	init_completion(&ctx->eeprom_load);
 
 	pci_set_drvdata(pdev, ctx);
-	err = request_firmware_nowait(THIS_MODULE, true, pdata->eeprom_name,
+	err = request_firmware_nowait(THIS_MODULE, true, eeprom_name,
 				      &pdev->dev, GFP_KERNEL, pdev, owl_fw_cb);
 	if (err) {
 		dev_err(&pdev->dev, "failed to request caldata (%d).", err);
