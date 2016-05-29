@@ -30,7 +30,7 @@ struct owl_ctx {
 
 #define AR5416_EEPROM_MAGIC 0xa55a
 
-static void ath9k_pci_fixup(struct pci_dev *dev, const u16 *cal_data,
+static int ath9k_pci_fixup(struct pci_dev *dev, const u16 *cal_data,
 			    size_t cal_len)
 {
 	void __iomem *mem;
@@ -48,7 +48,7 @@ static void ath9k_pci_fixup(struct pci_dev *dev, const u16 *cal_data,
 		if (*cal_data != swab16(AR5416_EEPROM_MAGIC)) {
 			pr_err("pci %s: invalid calibration data\n",
 			       pci_name(dev));
-			return;
+			return -EINVAL;
 		}
 		swap_needed = true;
 	}
@@ -58,7 +58,7 @@ static void ath9k_pci_fixup(struct pci_dev *dev, const u16 *cal_data,
 	mem = pcim_iomap(dev, 0, 0);
 	if (!mem) {
 		pr_err("pci %s: ioremap error\n", pci_name(dev));
-		return;
+		return -EINVAL;
 	}
 
 	pci_read_config_dword(dev, PCI_BASE_ADDRESS_0, &bar0);
@@ -96,6 +96,8 @@ static void ath9k_pci_fixup(struct pci_dev *dev, const u16 *cal_data,
 	pcim_iounmap(dev, mem);
 
 	pci_disable_device(dev);
+
+	return 0;
 }
 
 static void owl_fw_cb(const struct firmware *fw, void *context)
@@ -126,7 +128,9 @@ static void owl_fw_cb(const struct firmware *fw, void *context)
 	 * but remove the eeprom_name, so it doesn't try to load it too.
 	 */
 	pdata->eeprom_name = NULL;
-	ath9k_pci_fixup(pdev, pdata->eeprom_data, fw->size);
+
+	if (ath9k_pci_fixup(pdev, pdata->eeprom_data, fw->size))
+		goto release;
 
 	pci_lock_rescan_remove();
 	bus = pdev->bus;
