@@ -1,5 +1,5 @@
 /*
- * Initialize Owl Emulation Devices (PCIID: 168c:ff1c)
+ * Initialize Owl Emulation Devices
  *
  * Copyright (C) 2016 Christian Lamparter <chunkeey@googlemail.com>
  *
@@ -194,8 +194,8 @@ static void owl_remove(struct pci_dev *pdev)
 }
 
 static const struct pci_device_id owl_pci_table[] = {
-	/* PCIe Owl Emulation */
-	{ PCI_VDEVICE(ATHEROS, 0xff1c) }, /* PCI-E */
+	{ PCI_VDEVICE(ATHEROS, 0xff1c) }, /* PCIe */
+	{ PCI_VDEVICE(ATHEROS, 0xff1d) }, /* PCI */
 	{ },
 };
 MODULE_DEVICE_TABLE(pci, owl_pci_table);
