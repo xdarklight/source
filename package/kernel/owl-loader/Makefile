@@ -15,7 +15,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define KernelPackage/owl-loader
   SUBMENU:=Network Support
-  TITLE:=Owl loader for initializing Atheros PCIe Wifi chips
+  TITLE:=Owl loader for initializing Atheros PCI(e) Wifi chips
   DEPENDS:=@PCI_SUPPORT +kmod-ath9k
   FILES:=$(PKG_BUILD_DIR)/owl-loader.ko
   AUTOLOAD:=$(call AutoProbe,owl-loader)
@@ -24,9 +24,9 @@ endef
 
 define KernelPackage/owl-loader/description
   Kernel module that helps to initialize certain Qualcomm
-  Atheros' PCIe Wifi chips, which have the pcie init data
-  stored together with the calibration data in the file
-  system.
+  Atheros' PCI(e) Wifi chips, which have the init data
+  (which contains the PCI device ID for example) stored
+  together with the calibration data in the file system.
 
   This is necessary for devices like the Cisco Meraki Z1.
 endef
