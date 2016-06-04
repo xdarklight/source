@@ -30,8 +30,8 @@ struct owl_ctx {
 
 #define AR5416_EEPROM_MAGIC 0xa55a
 
-static int ath9k_pci_fixup(struct pci_dev *dev, const u16 *cal_data,
-			    size_t cal_len)
+static int ath9k_pci_fixup(struct pci_dev *pdev, const u16 *cal_data,
+			   size_t cal_len)
 {
 	void __iomem *mem;
 	const void *cal_end = (void *)cal_data + cal_len;
@@ -46,27 +46,26 @@ static int ath9k_pci_fixup(struct pci_dev *dev, const u16 *cal_data,
 
 	if (*cal_data != AR5416_EEPROM_MAGIC) {
 		if (*cal_data != swab16(AR5416_EEPROM_MAGIC)) {
-			pr_err("pci %s: invalid calibration data\n",
-			       pci_name(dev));
+			dev_err(&pdev->dev, "invalid calibration data\n");
 			return -EINVAL;
 		}
 		swap_needed = true;
 	}
 
-	pr_info("pci %s: fixup device configuration\n", pci_name(dev));
+	dev_info(&pdev->dev, "fixup device configuration\n");
 
-	mem = pcim_iomap(dev, 0, 0);
+	mem = pcim_iomap(pdev, 0, 0);
 	if (!mem) {
-		pr_err("pci %s: ioremap error\n", pci_name(dev));
+		dev_err(&pdev->dev, "ioremap error\n");
 		return -EINVAL;
 	}
 
-	pci_read_config_dword(dev, PCI_BASE_ADDRESS_0, &bar0);
-	pci_write_config_dword(dev, PCI_BASE_ADDRESS_0,
-			       pci_resource_start(dev, 0));
-	pci_read_config_word(dev, PCI_COMMAND, &cmd);
+	pci_read_config_dword(pdev, PCI_BASE_ADDRESS_0, &bar0);
+	pci_write_config_dword(pdev, PCI_BASE_ADDRESS_0,
+			       pci_resource_start(pdev, 0));
+	pci_read_config_word(pdev, PCI_COMMAND, &cmd);
 	cmd |= PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
-	pci_write_config_word(dev, PCI_COMMAND, cmd);
+	pci_write_config_word(pdev, PCI_COMMAND, cmd);
 
 	/* set pointer to first reg address */
 	for (data = (const void *) (cal_data + 3);
@@ -88,14 +87,14 @@ static int ath9k_pci_fixup(struct pci_dev *dev, const u16 *cal_data,
 		udelay(100);
 	}
 
-	pci_read_config_word(dev, PCI_COMMAND, &cmd);
+	pci_read_config_word(pdev, PCI_COMMAND, &cmd);
 	cmd &= ~(PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY);
-	pci_write_config_word(dev, PCI_COMMAND, cmd);
+	pci_write_config_word(pdev, PCI_COMMAND, cmd);
 
-	pci_write_config_dword(dev, PCI_BASE_ADDRESS_0, bar0);
-	pcim_iounmap(dev, mem);
+	pci_write_config_dword(pdev, PCI_BASE_ADDRESS_0, bar0);
+	pcim_iounmap(pdev, mem);
 
-	pci_disable_device(dev);
+	pci_disable_device(pdev);
 
 	return 0;
 }
