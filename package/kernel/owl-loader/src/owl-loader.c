@@ -122,7 +122,7 @@ static void owl_fw_cb(const struct firmware *fw, void *context)
 	/* also note that we are doing *u16 operations on the file */
 	if (fw->size > MAX_EEPROM_SIZE || fw->size < 0x200 ||
 	    (fw->size & 1) == 1) {
-		dev_err(&pdev->dev, "eeprom file has an invalid size.");
+		dev_err(&pdev->dev, "eeprom file has an invalid size.\n");
 		goto release;
 	}
 
@@ -195,7 +195,7 @@ static int owl_probe(struct pci_dev *pdev,
 
 	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
 	if (!ctx) {
-		dev_err(&pdev->dev, "failed to alloc device context.");
+		dev_err(&pdev->dev, "failed to alloc device context.\n");
 		return -ENOMEM;
 	}
 	init_completion(&ctx->eeprom_load);
@@ -204,7 +204,7 @@ static int owl_probe(struct pci_dev *pdev,
 	err = request_firmware_nowait(THIS_MODULE, true, eeprom_name,
 				      &pdev->dev, GFP_KERNEL, pdev, owl_fw_cb);
 	if (err) {
-		dev_err(&pdev->dev, "failed to request caldata (%d).", err);
+		dev_err(&pdev->dev, "failed to request caldata (%d).\n", err);
 		kfree(ctx);
 	}
 	return err;
