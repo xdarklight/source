@@ -49,6 +49,8 @@ static int ath9k_pci_fixup(struct pci_dev *pdev, const u16 *cal_data,
 			dev_err(&pdev->dev, "invalid calibration data\n");
 			return -EINVAL;
 		}
+
+		dev_dbg(&pdev->dev, "calibration data needs swapping\n");
 		swap_needed = true;
 	}
 
