@@ -89,6 +89,10 @@ static int ath9k_pci_fixup(struct pci_dev *pdev, const u16 *cal_data,
 			val = swahb32(val);
 		}
 
+#if CONFIG_LANTIQ
+		val = swab32(val);
+#endif
+
 		__raw_writel(val, mem + reg);
 		udelay(100);
 	}
