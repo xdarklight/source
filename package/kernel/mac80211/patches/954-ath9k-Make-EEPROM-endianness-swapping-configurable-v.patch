@@ -1,0 +1,66 @@
+From d2430df7f328a34fd279fdb2f306ea81ec7e83dc Mon Sep 17 00:00:00 2001
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Date: Sat, 30 Jul 2016 23:16:17 +0200
+Subject: [PATCH 8/8] ath9k: Make EEPROM endianness swapping configurable via
+ devicetree
+
+The endianness swapping is disabled by default since many devices have
+EEPROMs with incorrect endianness magic bytes (at the beginning).
+Devices where the EEPROM is known to indicate the correct endianness
+can enable the new flag to enable swapping when required.
+This behavior is consistent with ath9k_platform_data where the endian
+check also has to be enabled explicitly.
+
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+---
+ .../devicetree/bindings/net/wireless/qca,ath9k.txt       | 16 ++++++++++++++++
+ drivers/net/wireless/ath/ath9k/init.c                    |  6 +++++-
+ 2 files changed, 21 insertions(+), 1 deletion(-)
+
+--- a/Documentation/devicetree/bindings/net/wireless/qca,ath9k.txt
++++ b/Documentation/devicetree/bindings/net/wireless/qca,ath9k.txt
+@@ -17,6 +17,22 @@ Optional properties:
+ 			ath9k wireless chip (in this case the calibration /
+ 			EEPROM data will be loaded from userspace using the
+ 			kernel firmware loader).
++- qca,check-eeprom-endianness: When enabled, the driver checks if the
++				endianness of the EEPROM (using two checks,
++				one is based on the two magic bytes at the
++				start of the EEPROM and a second one which
++				relies on a flag within the EEPROM data)
++				matches the host system's native endianness.
++				The data will be swapped accordingly if there
++				is a mismatch.
++				Leaving this disabled means that the EEPROM
++				data will always be interpreted in the
++				system's native endianness.
++				Enable this option only when the EEPROMs
++				endianness identifiers are known to be
++				correct, because otherwise the EEPROM data
++				may be swapped and thus interpreted
++				incorrectly.
+ - qca,disable-2ghz: Overrides the settings from the EEPROM and disables the
+ 			2.4GHz band. Setting this property is only needed
+ 			when the RF circuit does not support the 2.4GHz band
+--- a/drivers/net/wireless/ath/ath9k/init.c
++++ b/drivers/net/wireless/ath/ath9k/init.c
+@@ -581,6 +581,11 @@ static int ath9k_of_init(struct ath_soft
+ 	if (of_property_read_bool(np, "qca,disable-5ghz"))
+ 		ah->disable_5ghz = true;
+ 
++	if (of_property_read_bool(np, "qca,check-eeprom-endianness"))
++		ah->ah_flags &= ~AH_NO_EEP_SWAP;
++	else
++		ah->ah_flags |= AH_NO_EEP_SWAP;
++
+ 	if (of_property_read_bool(np, "qca,no-eeprom")) {
+ 		/* ath9k-eeprom-<bus>-<id>.bin */
+ 		scnprintf(eeprom_name, sizeof(eeprom_name),
+@@ -597,7 +602,6 @@ static int ath9k_of_init(struct ath_soft
+ 		ether_addr_copy(common->macaddr, mac);
+ 
+ 	ah->ah_flags &= ~AH_USE_EEPROM;
+-	ah->ah_flags |= AH_NO_EEP_SWAP;
+ 
+ 	return 0;
+ }
