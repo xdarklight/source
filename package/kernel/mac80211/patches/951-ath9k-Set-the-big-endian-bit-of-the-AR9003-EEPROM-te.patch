@@ -1,0 +1,79 @@
+From 9c393bbc66d5fdd1b0528913cbc6a84fefa88c26 Mon Sep 17 00:00:00 2001
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Date: Sun, 14 Aug 2016 13:57:30 +0200
+Subject: [PATCH 5/8] ath9k: Set the "big endian" bit of the AR9003 EEPROM
+ templates
+
+We will default to the system's native endianness for the eepmisc value.
+This may be overwritten by the actual calibration data. If it is not
+overwritten we interpret the template data in it's native endianness,
+meaning that no swapping is required.
+
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_eeprom.c | 10 +++++-----
+ drivers/net/wireless/ath/ath9k/ar9003_eeprom.h |  6 ++++++
+ 2 files changed, 11 insertions(+), 5 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
+@@ -53,7 +53,7 @@ static const struct ar9300_eeprom ar9300
+ 		.txrxMask =  0x77, /* 4 bits tx and 4 bits rx */
+ 		.opCapFlags = {
+ 			.opFlags = AR5416_OPFLAGS_11G | AR5416_OPFLAGS_11A,
+-			.eepMisc = 0,
++			.eepMisc = AR9300_EEPMISC_DEFAULT_VALUE,
+ 		},
+ 		.rfSilent = 0,
+ 		.blueToothOptions = 0,
+@@ -631,7 +631,7 @@ static const struct ar9300_eeprom ar9300
+ 		.txrxMask =  0x77, /* 4 bits tx and 4 bits rx */
+ 		.opCapFlags = {
+ 			.opFlags = AR5416_OPFLAGS_11A,
+-			.eepMisc = 0,
++			.eepMisc = AR9300_EEPMISC_DEFAULT_VALUE,
+ 		},
+ 		.rfSilent = 0,
+ 		.blueToothOptions = 0,
+@@ -1210,7 +1210,7 @@ static const struct ar9300_eeprom ar9300
+ 		.txrxMask =  0x77, /* 4 bits tx and 4 bits rx */
+ 		.opCapFlags = {
+ 			.opFlags = AR5416_OPFLAGS_11G | AR5416_OPFLAGS_11A,
+-			.eepMisc = 0,
++			.eepMisc = AR9300_EEPMISC_DEFAULT_VALUE,
+ 		},
+ 		.rfSilent = 0,
+ 		.blueToothOptions = 0,
+@@ -1789,7 +1789,7 @@ static const struct ar9300_eeprom ar9300
+ 		.txrxMask =  0x77, /* 4 bits tx and 4 bits rx */
+ 		.opCapFlags = {
+ 			.opFlags = AR5416_OPFLAGS_11G | AR5416_OPFLAGS_11A,
+-			.eepMisc = 0,
++			.eepMisc = AR9300_EEPMISC_DEFAULT_VALUE,
+ 		},
+ 		.rfSilent = 0,
+ 		.blueToothOptions = 0,
+@@ -2367,7 +2367,7 @@ static const struct ar9300_eeprom ar9300
+ 		.txrxMask =  0x33, /* 4 bits tx and 4 bits rx */
+ 		.opCapFlags = {
+ 			.opFlags = AR5416_OPFLAGS_11G | AR5416_OPFLAGS_11A,
+-			.eepMisc = 0,
++			.eepMisc = AR9300_EEPMISC_DEFAULT_VALUE,
+ 		},
+ 		.rfSilent = 0,
+ 		.blueToothOptions = 0,
+--- a/drivers/net/wireless/ath/ath9k/ar9003_eeprom.h
++++ b/drivers/net/wireless/ath/ath9k/ar9003_eeprom.h
+@@ -69,6 +69,12 @@
+ #define AR9300_BASE_ADDR 0x3ff
+ #define AR9300_BASE_ADDR_512 0x1ff
+ 
++#ifdef __BIG_ENDIAN
++#define AR9300_EEPMISC_DEFAULT_VALUE AR5416_EEPMISC_BIG_ENDIAN
++#else
++#define AR9300_EEPMISC_DEFAULT_VALUE 0
++#endif
++
+ #define AR9300_OTP_BASE \
+ 		((AR_SREV_9340(ah) || AR_SREV_9550(ah)) ? 0x30000 : 0x14000)
+ #define AR9300_OTP_STATUS \
