@@ -1,0 +1,49 @@
+From beea34e1bb3173bf200419ead591fa9f2b8e84fa Mon Sep 17 00:00:00 2001
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Date: Fri, 24 Jun 2016 12:30:32 +0200
+Subject: [PATCH 8/9] ath9k: add a helper to get the string representation of
+ ath_bus_type
+
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+---
+ drivers/net/wireless/ath/ath.h  |  2 ++
+ drivers/net/wireless/ath/main.c | 15 +++++++++++++++
+ 2 files changed, 17 insertions(+)
+
+diff --git a/drivers/net/wireless/ath/ath.h b/drivers/net/wireless/ath/ath.h
+index da7a7c8..be0d292 100644
+--- a/drivers/net/wireless/ath/ath.h
++++ b/drivers/net/wireless/ath/ath.h
+@@ -327,4 +327,6 @@ static inline const char *ath_opmode_to_string(enum nl80211_iftype opmode)
+ }
+ #endif
+ 
++const char *ath_bus_type_to_string(enum ath_bus_type bustype);
++
+ #endif /* ATH_H */
+diff --git a/drivers/net/wireless/ath/main.c b/drivers/net/wireless/ath/main.c
+index 338d723..90427cb 100644
+--- a/drivers/net/wireless/ath/main.c
++++ b/drivers/net/wireless/ath/main.c
+@@ -90,3 +90,18 @@ void ath_printk(const char *level, const struct ath_common* common,
+ 	va_end(args);
+ }
+ EXPORT_SYMBOL(ath_printk);
++
++const char *ath_bus_type_to_string(enum ath_bus_type bustype)
++{
++	switch (bustype) {
++	case ATH_PCI:
++		return "pci";
++	case ATH_AHB:
++		return "ahb";
++	case ATH_USB:
++		return "usb";
++	default:
++		return "unknown";
++	}
++}
++EXPORT_SYMBOL(ath_bus_type_to_string);
+-- 
+2.9.0
+

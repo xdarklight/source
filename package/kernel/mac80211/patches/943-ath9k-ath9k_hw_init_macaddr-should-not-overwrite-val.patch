@@ -1,0 +1,58 @@
+From 4a6a2d4bf12390dcfb0c5d35d73f47b2aac6ad26 Mon Sep 17 00:00:00 2001
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Date: Wed, 22 Jun 2016 15:38:14 +0200
+Subject: [PATCH 3/9] ath9k: ath9k_hw_init_macaddr should not overwrite valid
+ MAC addresses
+
+Currently setting the MAC address via ath9k_platform_data works only due
+to the order in which init.c sets common->macaddr, which is done after
+ath9k_hw_init_macaddr was executed. It would be better if the latter
+was independent of the order in which it's being called.
+
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+---
+ drivers/net/wireless/ath/ath9k/hw.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/net/wireless/ath/ath9k/hw.c b/drivers/net/wireless/ath/ath9k/hw.c
+index 4f98ca0..4dd3aca 100644
+--- a/drivers/net/wireless/ath/ath9k/hw.c
++++ b/drivers/net/wireless/ath/ath9k/hw.c
+@@ -478,21 +478,25 @@ static int ath9k_hw_init_macaddr(struct ath_hw *ah)
+ 	u16 eeval;
+ 	static const u32 EEP_MAC[] = { EEP_MAC_LSW, EEP_MAC_MID, EEP_MAC_MSW };
+ 
++	/* MAC address may already be loaded via ath9k_platform_data */
++	if (is_valid_ether_addr(common->macaddr))
++		return 0;
++
+ 	for (i = 0; i < 3; i++) {
+ 		eeval = ah->eep_ops->get_eeprom(ah, EEP_MAC[i]);
+ 		common->macaddr[2 * i] = eeval >> 8;
+ 		common->macaddr[2 * i + 1] = eeval & 0xff;
+ 	}
+-	if (!is_valid_ether_addr(common->macaddr)) {
+-		ath_err(common,
+-			"eeprom contains invalid mac address: %pM\n",
+-			common->macaddr);
+ 
+-		random_ether_addr(common->macaddr);
+-		ath_err(common,
+-			"random mac address will be used: %pM\n",
+-			common->macaddr);
+-	}
++	if (is_valid_ether_addr(common->macaddr))
++		return 0;
++
++	ath_err(common, "eeprom contains invalid mac address: %pM\n",
++		common->macaddr);
++
++	random_ether_addr(common->macaddr);
++	ath_err(common, "random mac address will be used: %pM\n",
++		common->macaddr);
+ 
+ 	return 0;
+ }
+-- 
+2.9.0
+

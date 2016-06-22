@@ -1,0 +1,67 @@
+From 1fd71bb88add48f329854323468ab7ec84ad01b6 Mon Sep 17 00:00:00 2001
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Date: Sun, 5 Jun 2016 00:06:43 +0200
+Subject: [PATCH 7/9] Documentation: dt: net: add ath9k wireless device binding
+
+Add documentation how devicetree can be used to configure ath9k based
+devices.
+
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+---
+ .../devicetree/bindings/net/wireless/qca,ath9k.txt | 44 ++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/net/wireless/qca,ath9k.txt
+
+diff --git a/Documentation/devicetree/bindings/net/wireless/qca,ath9k.txt b/Documentation/devicetree/bindings/net/wireless/qca,ath9k.txt
+new file mode 100644
+index 0000000..fdd5c34
+--- /dev/null
++++ b/Documentation/devicetree/bindings/net/wireless/qca,ath9k.txt
+@@ -0,0 +1,44 @@
++* Qualcomm Atheros ath9k wireless devices
++
++This node provides properties for configuring the ath9k wireless device. The
++node is expected to be specified as a child node of the PCI controller to
++which the wireless chip is connected.
++
++Required properties:
++- compatible: Should be "qca,ath9k"
++
++Optional properties:
++- reg: Address and length of the register set for the device.
++- qca,gpio-mask: The GPIO mask
++- qca,gpio-val: The GPIO value
++- qca,led-pin: The GPIO number to which the LED is connected
++- qca,led-active-high: The LED is active when the GPIO is HIGH
++- qca,clk-25mhz: Defines that at 25MHz clock is used
++- qca,no-eeprom: Indicates that there is on physical EEPROM connected
++			to the ath9k wireless chip (in this case the
++			calibration / EEPROM data will be loaded from
++			userspace using the firmware mechanism)
++- qca,check-eeprom-endianness: Allow checking the EEPROM endianness and
++				swapping of the EEPROM data if required
++- qca,disable-2ghz: Disables the 2.4GHz band, even if enabled in the EEPROM
++- qca,disable-5ghz: Disables the 5GHz band, even if enabled in the EEPROM
++- mac-address: See ethernet.txt in the parent directory
++- local-mac-address: See ethernet.txt in the parent directory
++
++In this example, the node is defined as child node of the PCI controller.
++
++pci {
++	pcie@0 {
++		reg = <0 0 0 0 0>;
++		#interrupt-cells = <1>;
++		#size-cells = <2>;
++		#address-cells = <3>;
++		device_type = "pci";
++
++		ath9k@0,0 {
++			compatible = "qca,ath9k";
++			reg = <0 0 0 0 0>;
++			qca,disable-5ghz;
++		};
++	};
++};
+-- 
+2.9.0
+
