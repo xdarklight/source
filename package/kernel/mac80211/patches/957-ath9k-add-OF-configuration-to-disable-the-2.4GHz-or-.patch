@@ -1,0 +1,50 @@
+From 7c3dde3e88199a00b1328c08a6b2a61b5e678fac Mon Sep 17 00:00:00 2001
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Date: Sun, 25 Sep 2016 12:46:02 +0200
+Subject: [PATCH 13/15] ath9k: add OF configuration to disable the 2.4GHz or
+ 5GHz band
+
+Some devices are shipped with EEPROMs where a band is enabled which is
+not supported by the actual hardware. Allow disabling the affected
+bands using the new generic IEEE 802.11 bindings.
+
+This is the OF equivalent to using ath9k_platform_data's disable_2ghz
+and disable_5ghz attributes.
+
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+---
+ Documentation/devicetree/bindings/net/wireless/qca,ath9k.txt | 2 ++
+ drivers/net/wireless/ath/ath9k/init.c                        | 4 ++++
+ 2 files changed, 6 insertions(+)
+
+--- a/Documentation/devicetree/bindings/net/wireless/qca,ath9k.txt
++++ b/Documentation/devicetree/bindings/net/wireless/qca,ath9k.txt
+@@ -18,6 +18,8 @@ Optional properties:
+ 			kernel firmware loader).
+ - mac-address: See ethernet.txt in the parent directory
+ - local-mac-address: See ethernet.txt in the parent directory
++- disable-ieee80211-2ghz: See ieee80211.txt in the current directory
++- disable-ieee80211-5ghz: See ieee80211.txt in the current directory
+ 
+ 
+ In this example, the node is defined as child node of the PCI controller:
+--- a/drivers/net/wireless/ath/ath9k/init.c
++++ b/drivers/net/wireless/ath/ath9k/init.c
+@@ -21,6 +21,7 @@
+ #include <linux/ath9k_platform.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
++#include <linux/of_ieee80211.h>
+ #include <linux/of_net.h>
+ #include <linux/relay.h>
+ #include <net/ieee80211_radiotap.h>
+@@ -571,6 +572,9 @@ static int ath9k_of_init(struct ath_soft
+ 
+ 	ath_dbg(common, CONFIG, "parsing configuration from OF node\n");
+ 
++	ah->disable_2ghz = of_ieee80211_is_2ghz_disabled(np);
++	ah->disable_5ghz = of_ieee80211_is_5ghz_disabled(np);
++
+ 	if (of_property_read_bool(np, "qca,no-eeprom")) {
+ 		/* ath9k-eeprom-<bus>-<id>.bin */
+ 		scnprintf(eeprom_name, sizeof(eeprom_name),
