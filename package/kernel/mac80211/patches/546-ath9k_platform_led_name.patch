@@ -29,7 +29,7 @@ Signed-off-by: Michal Cieslakiewicz <michal.cieslakiewicz@wp.pl>
  		trigger = sc->led_default_trigger;
 --- a/include/linux/ath9k_platform.h
 +++ b/include/linux/ath9k_platform.h
-@@ -49,6 +49,7 @@ struct ath9k_platform_data {
+@@ -48,6 +48,7 @@ struct ath9k_platform_data {
  
  	int num_leds;
  	const struct gpio_led *leds;
