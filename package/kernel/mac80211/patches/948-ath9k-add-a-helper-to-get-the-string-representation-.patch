@@ -1,0 +1,42 @@
+From d6ba5a5ee1f9c1fbd14dcb13aa3c941941810a8b Mon Sep 17 00:00:00 2001
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Date: Fri, 24 Jun 2016 12:30:32 +0200
+Subject: [PATCH 8/9] ath9k: add a helper to get the string representation of
+ ath_bus_type
+
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+---
+ drivers/net/wireless/ath/ath.h  |  2 ++
+ drivers/net/wireless/ath/main.c | 15 +++++++++++++++
+ 2 files changed, 17 insertions(+)
+
+--- a/drivers/net/wireless/ath/ath.h
++++ b/drivers/net/wireless/ath/ath.h
+@@ -321,4 +321,6 @@ void _ath_dbg(struct ath_common *common,
+ /** Returns string describing opmode, or NULL if unknown mode. */
+ const char *ath_opmode_to_string(enum nl80211_iftype opmode);
+ 
++const char *ath_bus_type_to_string(enum ath_bus_type bustype);
++
+ #endif /* ATH_H */
+--- a/drivers/net/wireless/ath/main.c
++++ b/drivers/net/wireless/ath/main.c
+@@ -90,3 +90,18 @@ void ath_printk(const char *level, const
+ 	va_end(args);
+ }
+ EXPORT_SYMBOL(ath_printk);
++
++const char *ath_bus_type_to_string(enum ath_bus_type bustype)
++{
++	switch (bustype) {
++	case ATH_PCI:
++		return "pci";
++	case ATH_AHB:
++		return "ahb";
++	case ATH_USB:
++		return "usb";
++	default:
++		return "unknown";
++	}
++}
++EXPORT_SYMBOL(ath_bus_type_to_string);
