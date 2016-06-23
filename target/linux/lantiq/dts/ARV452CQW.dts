@@ -79,7 +79,7 @@
 			ath5k_eep {
 				compatible = "ath5k,eeprom";
 				reg = <0 0x3f0400 0x1000>;
-				ath,mac-offset = <0>;
+				ath,mac-offset = <0x16>;
 				ath,eep-swap;
 			};
 			gpiomm: gpiomm@4000000 {
