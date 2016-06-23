@@ -15,18 +15,6 @@
 				};
 			};
 		};
-
-		pci@E105400 {
-			status = "okay";
-			lantiq,bus-clock = <33333333>;
-			interrupt-map-mask = <0xf800 0x0 0x0 0x7>;
-			interrupt-map = <0x7000 0 0 1 &icu0 30 1>;
-			gpio-reset = <&gpio 21 0>;
-		};
-	};
-
-	ath9k_eep {
-		ath,pci-slot = <0>;
 	};
 
 	gpio-leds {
@@ -34,5 +22,24 @@
 			label = "tdw8980:green:wlan5ghz";
 			gpios = <&gpio 24 1>;
 		};
+	};
+};
+
+&pci0 {
+	status = "okay";
+	lantiq,bus-clock = <33333333>;
+	interrupt-map-mask = <0xf800 0x0 0x0 0x7>;
+	interrupt-map = <0x7000 0 0 1 &icu0 30 1>;
+	gpio-reset = <&gpio 21 0>;
+
+	ath9k@70 {
+		reg = <0x70 0 0 0 0>; /* slot 0xe (= 14) << 4 */
+		device_type = "pci";
+		qca,no-eeprom; /* load from ath9k-eeprom-pci-0000:00:0e.0.bin */
+		qca,led-pin = <0>;
+		qca,disable-5ghz;
+		qca,led-active-high;
+		mtd-mac-address = <&ath9k_cal 0xf100>;
+		mtd-mac-address-increment = <1>;
 	};
 };

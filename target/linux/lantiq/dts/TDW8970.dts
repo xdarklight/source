@@ -5,3 +5,23 @@
 / {
 	model = "TDW8970 - TP-LINK TD-W8970";
 };
+
+&pcie0 {
+	pcie@0 {
+		reg = <0 0 0 0 0>;
+		#interrupt-cells = <1>;
+		#size-cells = <2>;
+		#address-cells = <3>;
+		device_type = "pci";
+
+		ath9k@0,0 {
+			reg = <0 0 0 0 0>;
+			qca,no-eeprom; /* load from ath9k-eeprom-pci-0000:01:00.0.bin */
+			qca,led-pin = <0>;
+			qca,disable-5ghz;
+			qca,led-active-high;
+			mtd-mac-address = <&ath9k_cal 0xf100>;
+			mtd-mac-address-increment = <1>;
+		};
+	};
+};
