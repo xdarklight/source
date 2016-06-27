@@ -77,6 +77,7 @@ endef
 
 define Package/br2684ctl
   $(call Package/linux-atm/Default)
+  DEPENDS+=+atm-esi
   TITLE:=ATM Ethernet bridging configuration utility
 endef
 
