@@ -44,6 +44,9 @@ start_daemon() {
 	local sendsize
 	config_get sendsize "$cfg" sendsize
 
+	local macaddr
+	config_get macaddr "$cfg" macaddr
+
 	found=
 	for device in /sys/class/atm/*; do
 		[ -d "$device" ] || break
@@ -55,6 +58,9 @@ start_daemon() {
 	[ -n "$found" ] || return
 
 	local circuit="$atmdev.$vpi.$vci"
+
+	[ -z "$macaddr" ] && macaddr="00:00:01:00:00:00"
+	/usr/sbin/esi -f "${macaddr//:/}" $atmdev
 
 	procd_open_instance
 	procd_set_param command \
