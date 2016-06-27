@@ -75,6 +75,8 @@ ARV4518PWR01*)
         ;;
 
 DGN3500*)
+	lan_mac=$(mtd_get_mac_ascii uboot-env ethaddr)
+	wan_mac=$(macaddr_add "$lan_mac" 2)
 	ucidef_add_switch "switch0" \
 		"3:lan:1" "2:lan:2" "1:lan:3" "0:lan:4" "5t@eth0"
 	;;
