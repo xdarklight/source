@@ -163,7 +163,7 @@ WBMR300)
 esac
 
 if [ -n "$(ls /lib/modules/`uname -r`/ltq_atm*)" ]; then
-	ucidef_add_atm_bridge "$vpi" "$vci" "$encaps" "$payload"
+	ucidef_add_atm_bridge "$vpi" "$vci" "$encaps" "$payload" "$wan_mac"
 fi
 
 if grep -qE "system type.*: (VR9|xRX200)" /proc/cpuinfo; then
@@ -177,7 +177,7 @@ fi
 ucidef_set_interface_wan "$interface_wan" "pppoe"
 
 [ -n "$lan_mac" ] && ucidef_set_interface_macaddr lan "$lan_mac"
-[ -n "$wan_mac" ] && ucidef_set_interface_macaddr wan "$wan_mac"
+[ -n "$wan_mac" ] && [ "$interface_wan" != "nas0" ] && ucidef_set_interface_macaddr wan "$wan_mac"
 
 board_config_flush
 
