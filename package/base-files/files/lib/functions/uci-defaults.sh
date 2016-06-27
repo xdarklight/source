@@ -315,6 +315,7 @@ ucidef_add_atm_bridge() {
 	local vci="$2"
 	local encaps="$3"
 	local payload="$4"
+	local esi="$5"
 
 	json_select_object dsl
 		json_select_object atmbridge
@@ -322,6 +323,7 @@ ucidef_add_atm_bridge() {
 			json_add_int vci "$vci"
 			json_add_string encaps "$encaps"
 			json_add_string payload "$payload"
+			json_add_string esi "$esi"
 		json_select ..
 	json_select ..
 }
