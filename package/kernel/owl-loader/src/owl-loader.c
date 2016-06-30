@@ -116,8 +116,6 @@ static void owl_fw_cb(const struct firmware *fw, void *context)
 	struct ath9k_platform_data *pdata = dev_get_platdata(&pdev->dev);
 	struct pci_bus *bus;
 
-	complete(&ctx->eeprom_load);
-
 	if (!fw) {
 		dev_err(&pdev->dev, "no eeprom data received.\n");
 		goto release;
@@ -139,11 +137,18 @@ static void owl_fw_cb(const struct firmware *fw, void *context)
 		pdata->eeprom_name = NULL;
 	}
 
-	if (ath9k_pci_fixup(pdev, (const u16 *) fw->data, fw->size))
+	if (ath9k_pci_fixup(pdev, (const u16 *) fw->data, fw->size)) {
+		complete(&ctx->eeprom_load);
 		goto release;
+	}
 
 	pci_lock_rescan_remove();
 	bus = pdev->bus;
+
+	/* indicate completion early to allow pci_stop_and_remove_bus_device to
+	 * remove the current pdev. */
+	complete(&ctx->eeprom_load);
+
 	pci_stop_and_remove_bus_device(pdev);
 	/* the device should come back with the proper
 	 * ProductId. But we have to initiate a rescan.
@@ -184,7 +189,7 @@ static int owl_probe(struct pci_dev *pdev,
 {
 	struct owl_ctx *ctx;
 	const char *eeprom_name;
-	int err = 0;
+	int err;
 
 	if (pcim_enable_device(pdev))
 		return -EIO;
@@ -209,20 +214,18 @@ static int owl_probe(struct pci_dev *pdev,
 				      &pdev->dev, GFP_KERNEL, pdev, owl_fw_cb);
 	if (err) {
 		dev_err(&pdev->dev, "failed to request caldata (%d).\n", err);
-		kfree(ctx);
+		goto out;
 	}
+
+	wait_for_completion(&ctx->eeprom_load);
+
+out:
+	kfree(ctx);
 	return err;
 }
 
 static void owl_remove(struct pci_dev *pdev)
 {
-	struct owl_ctx *ctx = pci_get_drvdata(pdev);
-
-	if (ctx) {
-		wait_for_completion(&ctx->eeprom_load);
-		pci_set_drvdata(pdev, NULL);
-		kfree(ctx);
-	}
 }
 
 static const struct pci_device_id owl_pci_table[] = {
