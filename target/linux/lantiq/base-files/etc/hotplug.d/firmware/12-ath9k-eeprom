@@ -120,8 +120,7 @@ case "$FIRMWARE" in
 			ath9k_patch_firmware_mac $(macaddr_add $(mtd_get_mac_ascii uboot-env ethaddr) +2) 268 1 258
 			;;
 		BTHOMEHUBV5A)
-			ath9k_ubi_eeprom_extract "caldata" 4096 0
-			ath9k_patch_firmware_mac $(macaddr_add $(mtd_get_mac_binary_ubi caldata 4364) +2) 268 0 258
+			ath9k_eeprom_extract "caldata" 4096 0
 			;;
 		DGN3500)
 			ath9k_eeprom_extract "calibration" 61440 1
