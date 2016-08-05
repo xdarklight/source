@@ -31,14 +31,14 @@ Signed-off-by: Michal Kazior <michal.kazior@tieto.com>
 -	if (!hw)
 +	ops = kmemdup(&ath10k_ops, sizeof(ath10k_ops), GFP_KERNEL);
 +	if (!ops)
-+		return NULL;
-+
+ 		return NULL;
+ 
 +	hw = ieee80211_alloc_hw(sizeof(struct ath10k) + priv_size, ops);
 +	if (!hw) {
 +		kfree(ops);
- 		return NULL;
++		return NULL;
 +	}
- 
++
  	ar = hw->priv;
  	ar->hw = hw;
 +	ar->ops = ops;
