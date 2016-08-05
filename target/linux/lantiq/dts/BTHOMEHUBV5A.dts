@@ -116,14 +116,6 @@
 			status = "okay";
 			gpios = <&gpio 33 0>;
 		};
-
-		pci@E105400 {
-			status = "okay";
-			lantiq,bus-clock = <33333333>;
-			interrupt-map-mask = <0xf800 0x0 0x0 0x7>;
-			interrupt-map = <0x7000 0 0 1 &icu0 30 1>;
-			gpio-reset = <&gpio 21 0>;
-		};
 	};
 
 	gphy-xrx200 {
@@ -131,14 +123,6 @@
 		firmware1 = "lantiq/vr9_phy11g_a1x.bin";	/*VR9 1.1*/
 		firmware2 = "lantiq/vr9_phy11g_a2x.bin";	/*VR9 1.2*/
 		phys = [ 00 01 ];
-	};
-
-	ath9k_eep {
-		compatible = "ath9k,eeprom";
-		ath,eep-flash = <&caldata 0x1000>;
-		ath,mac-offset = <0x110c>;
-		ath,mac-increment = <2>;
-		ath,pci-slot = <0xe>; /* 14 */
 	};
 
 	gpio-keys-polled {
@@ -216,6 +200,22 @@
 			label = "dimmed";
 			gpios = <&gpio 19 0>;
 		};
+	};
+};
+
+&pci0 {
+	status = "okay";
+	lantiq,bus-clock = <33333333>;
+	interrupt-map-mask = <0xf800 0x0 0x0 0x7>;
+	interrupt-map = <0x7000 0 0 1 &icu0 30 1>;
+	gpio-reset = <&gpio 21 0>;
+
+	ath9k@7000 {
+		reg = <0x7000 0 0 0 0>;
+		qca,no-eeprom; /* load from ath9k-eeprom-pci-0000:00:0e.0.bin */
+		mtd-mac-address = <&caldata 0x110c>;
+		mtd-mac-address-increment = <2>;
+		disable-ieee80211-5ghz;
 	};
 };
 

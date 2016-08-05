@@ -110,15 +110,6 @@
 					};
 				};
 			};
-
-
-			ath9k_eep {
-				compatible = "ath9k,eeprom";
-				ath,eep-flash = <&ath9k_cal 0x0000>;
-				ath,mac-increment = <1>;
-				ath,pci-slot = <14>;
-				ath,eep-endian;
-			};
 		};
 
 		gpio: pinmux@E100B10 {
@@ -208,16 +199,6 @@
 			lantiq,shadow = <0xfff>;
 			lantiq,groups = <0x3>;
 		};
-
-		pci@E105400 {
-			status = "okay";
-			lantiq,bus-clock = <33333333>;
-			interrupt-map-mask = <0xf800 0x0 0x0 0x7>;
-			interrupt-map = <0x7000 0 0 1 &icu0 30 1>;
-			gpio-reset = <&gpio 21 0>;
-			req-mask = <0x1>;		 /* GNT1 */
-		};
-
 	};
 
 	gpio-keys-polled {
@@ -298,3 +279,17 @@
 	};
 };
 
+&pci0 {
+	status = "okay";
+	lantiq,bus-clock = <33333333>;
+	interrupt-map-mask = <0xf800 0x0 0x0 0x7>;
+	interrupt-map = <0x7000 0 0 1 &icu0 30 1>;
+	gpio-reset = <&gpio 21 0>;
+	req-mask = <0x1>;		 /* GNT1 */
+
+	ath9k@7000 {
+		reg = <0x7000 0 0 0 0>;
+		qca,no-eeprom; /* load from ath9k-eeprom-pci-0000:00:0e.0.bin */
+		qca,check-eeprom-endianness;
+	};
+};

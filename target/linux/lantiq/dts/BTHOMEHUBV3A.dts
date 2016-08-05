@@ -81,13 +81,6 @@
 					};
 				};
 			};
-
-			ath9k_eep {
-				compatible = "ath9k,eeprom";
-				ath,eep-flash = <&ath9k_cal 0x0000>;
-				ath,pci-slot = <14>;
-				ath,eep-endian;
-			};
 		};
 
 		gpio: pinmux@E100B10 {
@@ -144,11 +137,6 @@
 		ifxhcd@E101000 {
 			status = "okay";
 			gpios = <&gpio 33 0>;
-		};
-
-		pci@E105400 {
-			status = "okay";
-			gpio-reset = <&gpio 21 0>;
 		};
 
 	};
@@ -220,3 +208,13 @@
 	};
 };
 
+&pci0 {
+	status = "okay";
+	gpio-reset = <&gpio 21 0>;
+
+	ath9k@7000 {
+		reg = <0x7000 0 0 0 0>;
+		qca,no-eeprom; /* load from ath9k-eeprom-pci-0000:00:0e.0.bin */
+		qca,check-eeprom-endianness;
+	};
+};
