@@ -21,13 +21,29 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	if (currCal->calState == CAL_RUNNING) {
  		/* Check to see if it has finished. */
 -		if (!(REG_READ(ah, AR_PHY_TIMING4) & AR_PHY_TIMING4_DO_CAL)) {
--			/*
--			* Accumulate cal measures for active chains
--			*/
--			currCal->calData->calCollect(ah);
--			ah->cal_samples++;
 +		if (REG_READ(ah, AR_PHY_TIMING4) & AR_PHY_TIMING4_DO_CAL)
 +			return false;
++
++		/*
++		* Accumulate cal measures for active chains
++		*/
++		cur_caldata->calCollect(ah);
++		ah->cal_samples++;
++
++		if (ah->cal_samples >= cur_caldata->calNumSamples) {
++			unsigned int i, numChains = 0;
++			for (i = 0; i < AR9300_MAX_CHAINS; i++) {
++				if (rxchainmask & (1 << i))
++					numChains++;
++			}
++
+ 			/*
+-			* Accumulate cal measures for active chains
++			* Process accumulated data
+ 			*/
+-			currCal->calData->calCollect(ah);
+-			ah->cal_samples++;
++			cur_caldata->calPostProc(ah, numChains);
  
 -			if (ah->cal_samples >=
 -			    currCal->calData->calNumSamples) {
@@ -36,33 +52,17 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 -					if (rxchainmask & (1 << i))
 -						numChains++;
 -				}
-+		/*
-+		* Accumulate cal measures for active chains
-+		*/
-+		cur_caldata->calCollect(ah);
-+		ah->cal_samples++;
- 
+-
 -				/*
 -				* Process accumulated data
 -				*/
 -				currCal->calData->calPostProc(ah, numChains);
-+		if (ah->cal_samples >= cur_caldata->calNumSamples) {
-+			unsigned int i, numChains = 0;
-+			for (i = 0; i < AR9300_MAX_CHAINS; i++) {
-+				if (rxchainmask & (1 << i))
-+					numChains++;
-+			}
- 
+-
 -				/* Calibration has finished. */
 -				caldata->CalValid |= currCal->calData->calType;
 -				currCal->calState = CAL_DONE;
 -				iscaldone = true;
 -			} else {
-+			/*
-+			* Process accumulated data
-+			*/
-+			cur_caldata->calPostProc(ah, numChains);
-+
 +			/* Calibration has finished. */
 +			caldata->CalValid |= cur_caldata->calType;
 +			currCal->calState = CAL_DONE;
