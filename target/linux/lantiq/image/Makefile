@@ -180,7 +180,7 @@ define Device/BTHOMEHUBV2B
 	kmod-ltq-adsl-danube-fw-a kmod-ltq-atm-danube \
 	kmod-ltq-deu-danube \
 	ltq-adsl-app ppp-mod-pppoa \
-	kmod-ath9k wpad-mini \
+	kmod-ath9k kmod-owl-loader wpad-mini \
 	swconfig
 endef
 TARGET_DEVICES += BTHOMEHUBV2B
@@ -267,7 +267,7 @@ define Device/ARV7518PW
 	kmod-ltq-adsl-danube-mei kmod-ltq-adsl-danube \
 	kmod-ltq-adsl-danube-fw-a kmod-ltq-atm-danube \
 	ltq-adsl-app ppp-mod-pppoa \
-	kmod-ath9k wpad-mini \
+	kmod-ath9k kmod-owl-loader wpad-mini \
 	swconfig
 endef
 TARGET_DEVICES += ARV7518PW
@@ -317,7 +317,7 @@ define Device/ARV8539PW22
 	kmod-ltq-adsl-danube-mei kmod-ltq-adsl-danube \
 	kmod-ltq-adsl-danube-fw-b kmod-ltq-atm-danube \
 	ltq-adsl-app ppp-mod-pppoa \
-	kmod-ath9k wpad-mini \
+	kmod-ath9k kmod-owl-loader wpad-mini \
 	swconfig
 endef
 TARGET_DEVICES += ARV8539PW22
@@ -345,7 +345,7 @@ define Device/BTHOMEHUBV3A
 	kmod-ltq-adsl-ar9-fw-a kmod-ltq-atm-ar9 \
 	kmod-ltq-deu-ar9 \
 	ltq-adsl-app ppp-mod-pppoa \
-	kmod-ath9k wpad-mini \
+	kmod-ath9k kmod-owl-loader wpad-mini \
 	swconfig uboot-envtools
 endef
 TARGET_DEVICES += BTHOMEHUBV3A
@@ -373,7 +373,7 @@ define Device/DGN3500
 	check-size 16320k | pad-to 16384k
   DEVICE_TITLE := Netgear DGN3500
   DEVICE_PACKAGES := kmod-usb-dwc2 kmod-usb-ledtrig-usbport \
-	kmod-ath9k wpad-mini \
+	kmod-ath9k kmod-owl-loader wpad-mini \
 	kmod-ltq-adsl-ar9-mei kmod-ltq-adsl-ar9 \
 	kmod-ltq-adsl-ar9-fw-a kmod-ltq-atm-ar9 \
 	ltq-adsl-app ppp-mod-pppoa \
@@ -393,7 +393,7 @@ define Device/DGN3500B
 	check-size 16320k | pad-to 16384k
   DEVICE_TITLE := Netgear DGN3500B
   DEVICE_PACKAGES := kmod-usb-dwc2 kmod-usb-ledtrig-usbport \
-	kmod-ath9k wpad-mini \
+	kmod-ath9k kmod-owl-loader wpad-mini \
 	kmod-ltq-adsl-ar9-mei kmod-ltq-adsl-ar9 \
 	kmod-ltq-adsl-ar9-fw-b kmod-ltq-atm-ar9 \
 	ltq-adsl-app ppp-mod-pppoa \
@@ -409,7 +409,7 @@ define Device/WBMRA
 	kmod-ltq-adsl-ar9-mei kmod-ltq-adsl-ar9 \
 	kmod-ltq-adsl-ar9-fw-a kmod-ltq-atm-ar9 \
 	ltq-adsl-app ppp-mod-pppoa \
-	kmod-ath9k wpad-mini swconfig
+	kmod-ath9k kmod-owl-loader wpad-mini swconfig
 endef
 TARGET_DEVICES += WBMRA
 
@@ -421,7 +421,7 @@ define Device/WBMRB
 	kmod-ltq-adsl-ar9-mei kmod-ltq-adsl-ar9 \
 	kmod-ltq-adsl-ar9-fw-b kmod-ltq-atm-ar9 \
 	ltq-adsl-app ppp-mod-pppoa \
-	kmod-ath9k wpad-mini swconfig
+	kmod-ath9k kmod-owl-loader wpad-mini swconfig
 endef
 TARGET_DEVICES += WBMRB
 
@@ -429,12 +429,11 @@ define Device/FRITZ7320
   $(Device/AVM)
   IMAGE_SIZE := 15744k
   DEVICE_TITLE := 1&1 HomeServer - FRITZ7320
-  DEVICE_PACKAGES := kmod-ath9k wpad-mini \
+  DEVICE_PACKAGES := kmod-ath9k kmod-owl-loader wpad-mini \
 	kmod-ltq-adsl-ar9-mei kmod-ltq-adsl-ar9 \
 	kmod-ltq-adsl-ar9-fw-b kmod-ltq-atm-ar9 \
 	ltq-adsl-app ppp-mod-pppoa \
-	kmod-ltq-deu-ar9 kmod-usb-dwc2 \
-	kmod-ath9k wpad-mini
+	kmod-ltq-deu-ar9 kmod-usb-dwc2
 endef
 TARGET_DEVICES += FRITZ7320
 
@@ -495,7 +494,8 @@ TARGET_DEVICES += ARV7519RW22
 define Device/BTHOMEHUBV5A
   $(Device/NAND)
   DEVICE_TITLE := BT Home Hub 5A
-  DEVICE_PACKAGES := kmod-ath9k kmod-ath10k ath10k-firmware-qca988x wpad-mini kmod-usb-dwc2
+  DEVICE_PACKAGES := kmod-ath9k kmod-owl-loader \
+	kmod-ath10k ath10k-firmware-qca988x wpad-mini kmod-usb-dwc2
 endef
 TARGET_DEVICES += BTHOMEHUBV5A
 
@@ -503,14 +503,14 @@ define Device/EASY80920NAND
   $(Device/lantiqFullImage)
   IMAGE_SIZE := 64512k
   DEVICE_TITLE := Lantiq VR9 - EASY80920NAND
-  DEVICE_PACKAGES := kmod-ath9k wpad-mini kmod-usb-dwc2 kmod-usb-ledtrig-usbport
+  DEVICE_PACKAGES := kmod-ath9k kmod-owl-loader wpad-mini kmod-usb-dwc2 kmod-usb-ledtrig-usbport
 endef
 TARGET_DEVICES += EASY80920NAND
 
 define Device/EASY80920NOR
   IMAGE_SIZE := 7936k
   DEVICE_TITLE := Lantiq VR9 - EASY80920NOR
-  DEVICE_PACKAGES := kmod-ath9k wpad-mini kmod-usb-dwc2 kmod-usb-ledtrig-usbport
+  DEVICE_PACKAGES := kmod-ath9k kmod-owl-loader wpad-mini kmod-usb-dwc2 kmod-usb-ledtrig-usbport
 endef
 TARGET_DEVICES += EASY80920NOR
 
@@ -526,7 +526,7 @@ define Device/FRITZ7360SL
   $(Device/AVM)
   IMAGE_SIZE := 15744k
   DEVICE_TITLE := 1&1 HomeServer - FRITZ7360SL
-  DEVICE_PACKAGES := kmod-ath9k wpad-mini kmod-usb-dwc2
+  DEVICE_PACKAGES := kmod-ath9k kmod-owl-loader wpad-mini kmod-usb-dwc2
 endef
 TARGET_DEVICES += FRITZ7360SL
 
