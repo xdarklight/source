@@ -32,6 +32,9 @@ struct owl_ctx {
 
 #define EEPROM_FILENAME_LEN 100
 
+#define MAX_EEPROM_SIZE FIELD_SIZEOF(struct ath9k_platform_data, eeprom_data)
+#define MIN_EEPROM_SIZE 512
+
 #define AR5416_EEPROM_MAGIC 0xa55a
 
 static int ath9k_pci_fixup(struct pci_dev *pdev, const u16 *cal_data,
@@ -124,7 +127,7 @@ static void owl_fw_cb(const struct firmware *fw, void *context)
 	}
 
 	/* also note that we are doing *u16 operations on the file */
-	if (fw->size > sizeof(pdata->eeprom_data) || fw->size < 0x200 ||
+	if (fw->size > MAX_EEPROM_SIZE || fw->size < MIN_EEPROM_SIZE ||
 	    (fw->size & 1) == 1) {
 		dev_err(&pdev->dev, "eeprom file has an invalid size.\n");
 		goto release;
